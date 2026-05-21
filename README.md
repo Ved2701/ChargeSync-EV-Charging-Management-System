@@ -71,6 +71,12 @@ The project was developed as part of a DBMS course project to model real-world E
 - Built a GUI-driven application integrated with MySQL
 - Gained practical experience in database-backed application development
 
+## Setup Instructions
+
+1. Import the sql file into MySQL
+2. Update database credentials in the python file
+3. Run the application
+
 ## Notes
 
 This project uses simulated data for demonstration purposes while being designed around realistic EV charging workflows and scalable database operations.
