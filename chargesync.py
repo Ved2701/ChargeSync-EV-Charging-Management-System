@@ -42,11 +42,6 @@ FN_BTN       = ("Helvetica",  10, "bold")
 FN_MONO      = ("Courier",     9)
 FN_SMALL     = ("Helvetica",   9)
 
-
-# ═══════════════════════════════════════════════════════════
-#  WIDGET HELPERS
-# ═══════════════════════════════════════════════════════════
-
 def _apply_treeview_style():
     s = ttk.Style()
     s.theme_use("clam")
@@ -118,11 +113,6 @@ def ghost_btn(parent, text, color=ACCENT_BLUE, command=None):
     btn.bind("<Leave>", lambda e: btn.config(bg=BG_CARD, fg=color))
     return btn
 
-
-# ═══════════════════════════════════════════════════════════
-#  WINDOW BUILDERS
-# ═══════════════════════════════════════════════════════════
-
 def _toplevel(title, w, h):
     win = tk.Toplevel(root)
     win.title(title)
@@ -186,10 +176,6 @@ def create_table_window(title, columns, query):
         tree.insert("", tk.END, values=row, tags=("odd" if i%2==0 else "even",))
 
 
-# ═══════════════════════════════════════════════════════════
-#  SIDEBAR DASHBOARD
-# ═══════════════════════════════════════════════════════════
-
 def _sidebar_dashboard(title, role_icon, accent, menu_items):
     win = tk.Toplevel(root)
     win.title(title)
@@ -201,7 +187,6 @@ def _sidebar_dashboard(title, role_icon, accent, menu_items):
     main = tk.Frame(win, bg=BG_BASE)
     main.pack(fill="both", expand=True)
 
-    # ── Sidebar ──────────────────────────────────────────────
     sidebar = tk.Frame(main, bg=BG_PANEL, width=SIDEBAR_W)
     sidebar.pack(side="left", fill="y")
     sidebar.pack_propagate(False)
@@ -224,7 +209,6 @@ def _sidebar_dashboard(title, role_icon, accent, menu_items):
     _sep(sidebar, BORDER, padx=20, pady=(0,6))
     _lbl(sidebar, "  NAVIGATION", font=("Helvetica",8,"bold"), fg=TEXT_MUTED, bg=BG_PANEL).pack(anchor="w", pady=(2,6))
 
-    # ── Content area ─────────────────────────────────────────
     right = tk.Frame(main, bg=BG_BASE)
     right.pack(side="left", fill="both", expand=True)
 
@@ -238,7 +222,6 @@ def _sidebar_dashboard(title, role_icon, accent, menu_items):
     content = tk.Frame(right, bg=BG_BASE)
     content.pack(fill="both", expand=True)
 
-    # Welcome card in content
     welcome = tk.Frame(content, bg=BG_BASE, padx=36, pady=32)
     welcome.pack(fill="both", expand=True)
     _lbl(welcome, f"{role_icon}  {title}", font=("Georgia",20,"bold"), fg=TEXT_H1, bg=BG_BASE).pack(anchor="w")
@@ -256,7 +239,6 @@ def _sidebar_dashboard(title, role_icon, accent, menu_items):
         btn_widget.config(bg=accent, fg=BG_BASE)
         active_ref[0] = btn_widget
         topbar_lbl.config(text=f"   {label}")
-        # clear content
         for w in content.winfo_children():
             w.destroy()
         cb()
@@ -288,20 +270,13 @@ def _sidebar_dashboard(title, role_icon, accent, menu_items):
     close_b.bind("<Enter>", lambda e: close_b.config(bg=ACCENT_RED, fg=BG_BASE))
     close_b.bind("<Leave>", lambda e: close_b.config(bg=BG_PANEL,   fg=ACCENT_RED))
 
-    # Callback wrappers that embed into content pane
     def _embed(cb):
         def wrapped():
             for w in content.winfo_children(): w.destroy()
-            # call the action — forms open as Toplevels; table views open as Toplevels
             cb()
         return wrapped
 
     return win, content
-
-
-# ═══════════════════════════════════════════════════════════
-#  DB HELPERS
-# ═══════════════════════════════════════════════════════════
 
 def get_next_owner_id():
     cursor.execute("SELECT MAX(OwnerID) FROM EV_OWNER")
@@ -318,11 +293,6 @@ def get_next_payment_id():
 def get_next_request_id():
     cursor.execute("SELECT MAX(RequestID) FROM MAINTENANCE_REQUEST")
     r = cursor.fetchone()[0]; return 1 if r is None else r+1
-
-
-# ═══════════════════════════════════════════════════════════
-#  FORMS
-# ═══════════════════════════════════════════════════════════
 
 def register_owner():
     win, body = _form_window("Register EV Owner", ACCENT_GREEN)
@@ -558,11 +528,8 @@ def update_power():
     _lbl(card, "Update the available power for a charging station",
          font=FN_SMALL, fg=TEXT_MUTED, bg=BG_CARD).pack(anchor="w", pady=(0, 6))
 
-    # Operator ID — identifies which user is making the change
     op_e  = field(card, "Operator ID",         accent=ACCENT_GREEN)
     sid_e = field(card, "Station ID",          accent=ACCENT_GREEN)
-
-    # Shows current DB value once station ID is entered
     cur_row = tk.Frame(card, bg=BG_CARD); cur_row.pack(fill="x", pady=(10, 0))
     _lbl(cur_row, "Current Power:", font=FN_LABEL, fg=TEXT_BODY, bg=BG_CARD).pack(side="left")
     cur_val_lbl = _lbl(cur_row, "—", font=("Helvetica", 11, "bold"),
@@ -610,7 +577,6 @@ def update_power():
             c.autocommit = False
             cu = c.cursor()
 
-            # Validate operator exists
             cu.execute(
                 "SELECT OperatorName FROM charging_operator WHERE OperatorID = %s",
                 (op_id,)
@@ -722,11 +688,6 @@ def vendor_dashboard():
         ("✅","Update Request Status", update_request_status),
     ])
 
-
-# ═══════════════════════════════════════════════════════════
-#  ROOT — landing / role selection
-# ═══════════════════════════════════════════════════════════
-
 root = tk.Tk()
 root.title("EV Charging Management System")
 root.geometry("960x640")
@@ -737,7 +698,6 @@ root.minsize(820, 580)
 main_frame = tk.Frame(root, bg=BG_BASE)
 main_frame.pack(fill="both", expand=True)
 
-# ── Left brand panel ──────────────────────────────────────
 left = tk.Frame(main_frame, bg=BG_PANEL, width=400)
 left.pack(side="left", fill="y")
 left.pack_propagate(False)
@@ -747,7 +707,6 @@ tk.Frame(left, bg=ACCENT_BLUE, height=3).pack(fill="x")
 brand_c = tk.Canvas(left, bg=BG_PANEL, width=400, height=280, highlightthickness=0)
 brand_c.pack()
 
-# Geometric decorative rings
 brand_c.create_oval(260,-40,430,130, outline="#1E3A5A",width=1,fill="")
 brand_c.create_oval(280,-20,410,110, outline="#1B4F72",width=1,fill="")
 brand_c.create_oval(-50,180,150,380, outline="#1E3A5A",width=1,fill="")
@@ -778,7 +737,6 @@ tk.Frame(left, bg=BG_PANEL).pack(fill="y", expand=True)
 _sep(left, BORDER, padx=32)
 _lbl(left,"Smarter charging. Greener future.",font=("Georgia",9,"italic"),fg=TEXT_MUTED,bg=BG_PANEL).pack(pady=10)
 
-# ── Right role-selection panel ────────────────────────────
 right_f = tk.Frame(main_frame, bg=BG_BASE)
 right_f.pack(side="left", fill="both", expand=True)
 
@@ -806,7 +764,6 @@ for icon, role, desc, color, cmd in roles:
     card = tk.Frame(outer, bg=card_bg, padx=20, pady=14, cursor="hand2")
     card.pack(fill="x")
 
-    # color stripe on left
     stripe = tk.Frame(outer, bg=color, width=4)
     stripe.place(relx=0, rely=0, relheight=1)
 
